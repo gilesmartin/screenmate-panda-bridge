@@ -1,0 +1,12 @@
+# Source-only public tree. Keep generated and device-collected material out.
+/build/*
+!/build/probe_raw_udp.py
+__pycache__/
+*.pyc
+*.o
+*.so
+*.apk
+*.log
+*.disasm
+.DS_Store
+/local/
