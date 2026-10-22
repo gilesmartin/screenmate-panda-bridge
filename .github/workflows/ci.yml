@@ -1,0 +1,37 @@
+name: ScreenMate community verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Synthetic UDP, ring, ownership and packaging tests only
+        run: sudo env PATH="$PATH" sh scripts/test-host.sh
+      - name: Shell syntax and lint
+        run: |
+          sh -n scripts/test-host.sh
+          shellcheck scripts/test-host.sh
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pinned NDK
+        run: sdkmanager 'ndk;28.2.13676358'
+      - name: ARM64 Android 34 cross-build (never deployed)
+        run: python3 scripts/build-android.py --ndk "$ANDROID_HOME/ndk/28.2.13676358"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenmate-panda-android-arm64-experimental
+          path: dist/android-arm64/
+          if-no-files-found: error

@@ -10,3 +10,7 @@ __pycache__/
 *.disasm
 .DS_Store
 /local/
+
+# Community cross-builds, notices and private/local results stay out of Git.
+/dist/
+*.local.json

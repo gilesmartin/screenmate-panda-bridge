@@ -4,6 +4,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWED = {
+    'scripts/compatibility.py',
+    'scripts/build-android.py',
+    'scripts/test-host.sh',
+    'tests/test_community_packaging.py',
+    '.github/workflows/ci.yml',
+    'THIRD_PARTY_NOTICES.md',
+    'CHANGELOG.md',
+    'docs/architecture.md',
+    'docs/build.md',
+    'docs/compatibility.md',
+    'docs/client-setup.md',
+    'docs/boot-and-recovery.md',
+    'docs/validation.md',
+    'docs/security.md',
     'README.md', 'LICENSE', '.gitignore',
     'native/panda_bridge.cpp', 'native/raw_mcu_bridge.cpp',
     'native/raw_ring.h', 'native/stock_guard.h',
@@ -22,6 +36,7 @@ class ReleaseContentsTest(unittest.TestCase):
         files = {str(p.relative_to(ROOT)) for p in ROOT.rglob('*')
                  if p.is_file() and '.git' not in p.parts and '__pycache__' not in p.parts
                  and p.suffix not in ('.pyc',)
+                 and 'dist' not in p.relative_to(ROOT).parts
                  and (p.parent != ROOT / 'build' or p.name == 'probe_raw_udp.py')}
         self.assertEqual(files, ALLOWED)
 
