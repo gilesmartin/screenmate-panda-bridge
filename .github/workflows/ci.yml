@@ -1,16 +1,17 @@
 name: ScreenMate community verification
 on:
   push:
+    branches: ['**']
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   host:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
       - name: Synthetic UDP, ring, ownership and packaging tests only
@@ -20,17 +21,17 @@ jobs:
           sh -n scripts/test-host.sh
           shellcheck scripts/test-host.sh
   android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
       - name: Pinned NDK
-        run: sdkmanager 'ndk;28.2.13676358'
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"'
       - name: ARM64 Android 34 cross-build (never deployed)
         run: python3 scripts/build-android.py --ndk "$ANDROID_HOME/ndk/28.2.13676358"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: screenmate-panda-android-arm64-experimental
           path: dist/android-arm64/

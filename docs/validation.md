@@ -27,3 +27,7 @@ These are historical reported observations, not a fresh reproduction or current 
 This preview does not establish all-bus coverage, lossless UDP under load, recovery/restoration after a fault, compatibility with any other firmware, a clean independent reproduction of the Android release build, or decoded behavior in every client. Host tests, synthetic fixtures, a new community build, historical live observations, and an installed-device test are distinct evidence categories. A successful handshake is not frame delivery or decoding. For protocol limits see [architecture](architecture.md); for read-only compatibility checks see [compatibility](compatibility.md).
 
 No physical Panda USB or OBD passthrough, CAN transmission, firmware flashing, or vehicle diagnostics are supported or proven by this repository. Do not deliberately disrupt a stock service or test on a vehicle that is not parked, stationary, unoccupied, and not drive-ready.
+
+## Community build verification
+
+The release adds no vehicle-facing feature. A clean Linux CI run exposed ignored `ftruncate` results in the filtered bridge PID-file path; those failures now return a controlled error, with a non-seekable-PID-file regression test. CAN decoding, UDP protocol, raw Binder/session gates and firmware pin are unchanged. The new binaries have not been installed on the vehicle.

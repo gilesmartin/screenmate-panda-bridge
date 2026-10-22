@@ -91,6 +91,14 @@ class BridgeTest(unittest.TestCase):
                 pass
         self.fail(f"no Panda frame with CAN ID {expected_id:#x}")
 
+    def test_nonseekable_pidfile_fails_before_starting_listener(self):
+        fifo = Path(self.tmp.name) / "pid-fifo"
+        os.mkfifo(fifo)
+        result = subprocess.run([str(BIN), "--interfaces", "lo", "--port", str(self.port),
+                                 "--source-file", str(self.fixture), "--pid-file", str(fifo)],
+                                capture_output=True, timeout=2)
+        self.assertEqual(result.returncode, 4)
+
     def test_v1_handshake_and_read_only_frame(self):
         self.assertEqual(self.hello(), (6, 15, 0, b"\0" * 8))
         self.write_frame(1)

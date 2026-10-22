@@ -342,7 +342,8 @@ int main(int argc,char** argv) {
     if (!pidfile.empty()) {
         lock=open(pidfile.c_str(),O_CREAT|O_RDWR|O_CLOEXEC,0644);
         if (lock<0 || flock(lock,LOCK_EX|LOCK_NB)!=0) { std::fprintf(stderr,"bridge already running or pidfile unavailable\n"); return 4; }
-        ftruncate(lock,0); const auto pid=std::to_string(getpid())+"\n";
+        if (ftruncate(lock,0)!=0) { close(lock); return 4; }
+        const auto pid=std::to_string(getpid())+"\n";
         if (write(lock,pid.c_str(),pid.size()) != ssize_t(pid.size())) return 4;
     }
     signal(SIGTERM,stop); signal(SIGINT,stop);
@@ -357,7 +358,11 @@ int main(int argc,char** argv) {
         server.poll_inputs();
         ring.drain([&](const CanFrame& frame){server.send(frame);});
     }
-    if (lock>=0) { ftruncate(lock,0); close(lock); }
+    if (lock>=0) {
+        const int cleared=ftruncate(lock,0);
+        close(lock);
+        if (cleared!=0) return 4;
+    }
     return 0;
 }
 #endif // PANDABRIDGE_LIBRARY_ONLY
