@@ -1,42 +1,31 @@
-# ScreenMate Panda Bridge — experimental developer preview
+# ScreenMate Panda Bridge
 
-An experimental, receive-only bridge for one ScreenMate MCU firmware to Panda-compatible UDP clients. **Compatibility is one firmware fingerprint only; this is not a universal ScreenMate modification.** This is a developer preview, not a supported vehicle product.
+Use the CAN data already available inside ScreenMate with a Panda-compatible app, such as tes•LAX, over the local network.
 
-> **Shareable description:** Experimental receive-only ScreenMate Panda UDP bridge; one firmware only; check compatibility first; no installer and no CAN TX.
+The receive-only bridge reads vehicle data from ScreenMate and sends it in the UDP format those apps expect. It does not transmit commands onto the car's CAN bus, and it does not emulate a physical Panda USB device.
 
-## Start here
+## What does it add?
 
-- [Architecture and data flow](docs/architecture.md)
-- [Compatibility and read-only checker](docs/compatibility.md)
-- [Build the Android ARM64 binaries](docs/build.md)
-- [Panda client setup and safe probe](docs/client-setup.md)
-- [Boot, supervision, and recovery status](docs/boot-and-recovery.md)
-- [What has and has not been validated](docs/validation.md)
-- [Security and safety limitations](docs/security.md)
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
+There are two readers. The stock reader uses the data ScreenMate already exposes. The optional raw reader can receive additional messages that the stock feed leaves out. The [technical guide](docs/architecture.md) explains the difference.
 
-## Important before use
+tes•LAX worked during the earlier owner's test. That is not a promise that every Panda-compatible app or ScreenMate firmware will work.
 
-There is **no APK, Magisk module, installer, auto-install/boot script, or one-click procedure**. The release artifacts are source and an Android ARM64 archive containing two project-built executables plus build metadata and notices. They are not an installable package. Do not deploy from these files alone: use requires an owner-specific, independently reviewed lifecycle/supervision and recovery design. This repository does not supply one.
+## Can I install it?
 
-The raw MCU path is especially dangerous if run manually without supervision. It is disabled by default and requires explicit gates. It is receive-only (no CAN transmit), but that does not make the operation safe or lossless. See [security](docs/security.md) and [boot/recovery](docs/boot-and-recovery.md).
+This is an experimental developer release. It requires a rooted ScreenMate and the tested MCU firmware. There is no installer: the download contains source and Android ARM64 executables, not an APK or Magisk module.
 
-## Quick start for developers
+The raw reader needs a reviewed startup, supervision and shutdown setup. Do not run it manually just because the firmware check passes. Automatic fallback recovery was not fault-tested, and these newly built release binaries have not been installed or tested in the car.
 
-1. Read [compatibility](docs/compatibility.md). Do not infer that a matching host build or protocol handshake authorizes device installation.
-2. Run the [offline host tests](docs/validation.md) and follow [build instructions](docs/build.md) if developing.
-3. Only connect a client to an already-authorized, owner-managed listener. The [client guide](docs/client-setup.md) includes a metadata-only probe example using a placeholder host; it does not create or enable a listener.
+## Where to start
 
-The raw reader permits only `ap0,tun1`; the stock bridge defaults to those interfaces; it does not establish a network/VPN. UDP has no authentication or encryption. No public, cellular, or wildcard listener is intended.
+1. Read the [compatibility requirements and read-only checker](docs/compatibility.md).
+2. See the [downloads](https://github.com/gilesmartin/screenmate-panda-bridge/releases/tag/screenmate-preview-2026.10.22) or [build instructions](docs/build.md).
+3. Use the [client setup guide](docs/client-setup.md) only after you have an approved, running listener.
 
-The historical guarded fallback was **not fault-tested** on the verified boot; it is not supplied as a portable recovery guarantee.
+Keep the feed on a trusted local network. It is not authenticated or encrypted. Do not expose it to the internet or invoke the vendor MCU `dumpsys` endpoint.
 
-## Scope and evidence
-
-The stock bridge reads the existing read-only VHAL ring and applies Panda peer-side filters; it cannot restore frames already filtered upstream, including `0x401`. The optional raw reader opens its own wildcard MCU receive session; it preserves received CAN ID, bus, and DLC and forces all frames to registered peers. See [architecture](docs/architecture.md).
-
-Historically, one rooted device trial reported 176,511 valid frames, zero malformed, and 2,052 bus-0/DLC-8 `0x401` frames in a 60-second sample. This is historical evidence, not a current liveness check, clean-room release build, or guarantee. A user reported tes•LAX operation during that earlier runtime; post-boot Panda client operation and other clients have not been verified. See [validation](docs/validation.md).
+[Boot and recovery notes](docs/boot-and-recovery.md) · [Safety and security](docs/security.md) · [Tests and vehicle observations](docs/validation.md) · [Technical details](docs/architecture.md)
 
 ## License
 
-Original project source: MIT; see [LICENSE](LICENSE). Third-party attribution and distribution limitations are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Original source is [MIT licensed](LICENSE). The build includes its NDK notices; see [third-party notices](THIRD_PARTY_NOTICES.md).
